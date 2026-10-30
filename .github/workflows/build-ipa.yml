@@ -1,0 +1,68 @@
+name: Build IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-ipa:
+    name: Build Snapchat IPA
+    runs-on: macos-14
+    env:
+      PROJECT: ThreeOneOSFive.xcodeproj
+      SCHEME: 3105
+      CONFIGURATION: Release
+      SDK: iphoneos
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Build unsigned iOS app
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -configuration "$CONFIGURATION" \
+            -sdk "$SDK" \
+            -archivePath "$RUNNER_TEMP/Snapchat.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            archive | tee build.log
+
+      - name: Package unsigned IPA
+        run: |
+          set -euo pipefail
+          APP_PATH="$(find "$RUNNER_TEMP/Snapchat.xcarchive/Products/Applications" -maxdepth 1 -type d -name '*.app' -print -quit)"
+          test -n "$APP_PATH"
+          rm -rf Payload Snapchat-unsigned.ipa
+          mkdir Payload
+          cp -R "$APP_PATH" Payload/
+          /usr/bin/ditto -c -k --sequesterRsrc --keepParent Payload Snapchat-unsigned.ipa
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Snapchat-unsigned-IPA
+          path: Snapchat-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Signing instructions
+        run: |
+          {
+            echo '### IPA gerado'
+            echo ''
+            echo 'O artefato Snapchat-unsigned-IPA foi criado.'
+            echo ''
+            echo 'Este workflow gera um IPA não assinado. Para instalar no iPhone, configure certificado de distribuição e provisioning profile nos secrets do repositório e adicione a etapa de assinatura.'
+          } >> "$GITHUB_STEP_SUMMARY"
