@@ -4,8 +4,8 @@ enum AppTheme {
     static let accent = Color(
         uiColor: UIColor { traits in
             traits.userInterfaceStyle == .dark
-                ? UIColor(red: 1.00, green: 0.64, blue: 0.42, alpha: 1.00)
-                : UIColor(red: 0.85, green: 0.42, blue: 0.20, alpha: 1.00)
+                ? UIColor(red: 1.00, green: 0.48, blue: 0.20, alpha: 1.00)
+                : UIColor(red: 0.98, green: 0.28, blue: 0.06, alpha: 1.00)
         }
     )
     static let pageBackground = Color(uiColor: .systemBackground)
@@ -25,11 +25,11 @@ enum AppTheme {
 
     static func animatedTextColor(at date: Date) -> Color {
         let palette: [UIColor] = [
-            UIColor(red: 0.15, green: 0.42, blue: 1.00, alpha: 1.00),
-            UIColor(red: 0.55, green: 0.20, blue: 1.00, alpha: 1.00),
-            UIColor(red: 1.00, green: 0.16, blue: 0.22, alpha: 1.00),
-            UIColor(red: 0.12, green: 0.78, blue: 0.32, alpha: 1.00),
-            UIColor(red: 1.00, green: 0.76, blue: 0.05, alpha: 1.00)
+            UIColor(red: 0.02, green: 0.36, blue: 1.00, alpha: 1.00),
+            UIColor(red: 0.68, green: 0.04, blue: 1.00, alpha: 1.00),
+            UIColor(red: 1.00, green: 0.03, blue: 0.14, alpha: 1.00),
+            UIColor(red: 0.00, green: 0.92, blue: 0.24, alpha: 1.00),
+            UIColor(red: 1.00, green: 0.86, blue: 0.00, alpha: 1.00)
         ]
         let cycleDuration = 20.0
         let progress = date.timeIntervalSinceReferenceDate
@@ -208,13 +208,44 @@ struct SnapchatActionButtonStyle: ButtonStyle {
             .foregroundStyle(.white)
             .padding(.vertical, 15)
             .padding(.horizontal, 18)
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(isDestructive ? Color.red.opacity(0.86) : AppTheme.accent)
-            )
+            .background { AnimatedActionButtonBackground(isDestructive: isDestructive) }
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
-            .shadow(color: (isDestructive ? Color.red : AppTheme.accent).opacity(0.25), radius: 12, y: 6)
+            .shadow(
+                color: (isDestructive ? Color.red : AppTheme.accent).opacity(0.42),
+                radius: 15,
+                y: 7
+            )
             .animation(.easeOut(duration: 0.16), value: configuration.isPressed)
+    }
+}
+
+private struct AnimatedActionButtonBackground: View {
+    let isDestructive: Bool
+    @AppStorage(VisualPreferences.animatedColorsKey) private var animatedColorsEnabled = true
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 0.08)) { timeline in
+            let first = animatedColorsEnabled
+                ? AppTheme.animatedTextColor(at: timeline.date)
+                : AppTheme.accent
+            let second = animatedColorsEnabled
+                ? AppTheme.animatedTextColor(at: timeline.date.addingTimeInterval(4))
+                : AppTheme.accent.opacity(0.78)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: isDestructive
+                            ? [Color.red.opacity(0.94), second.opacity(0.92)]
+                            : [first, second],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.28), lineWidth: 1)
+                }
+        }
     }
 }
 

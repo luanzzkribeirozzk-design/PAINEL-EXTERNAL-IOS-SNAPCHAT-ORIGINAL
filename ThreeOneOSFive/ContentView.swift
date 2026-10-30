@@ -222,16 +222,21 @@ private struct CompactTabLabel: View {
 
     @ViewBuilder
     var body: some View {
-        if let image = UIImage(
-            systemName: systemImage,
-            withConfiguration: UIImage.SymbolConfiguration(pointSize: 17, weight: .medium)
-        )?.withRenderingMode(.alwaysTemplate) {
-            Image(uiImage: image)
-        } else if !systemImage.isEmpty {
-            Image(systemName: systemImage)
-                .font(.system(size: 17, weight: .medium))
+        TimelineView(.animation(minimumInterval: 0.08)) { timeline in
+            Group {
+                if let image = UIImage(
+                    systemName: systemImage,
+                    withConfiguration: UIImage.SymbolConfiguration(pointSize: 17, weight: .medium)
+                )?.withRenderingMode(.alwaysTemplate) {
+                    Image(uiImage: image)
+                } else if !systemImage.isEmpty {
+                    Image(systemName: systemImage)
+                        .font(.system(size: 17, weight: .medium))
+                }
+                Text(title)
+            }
+            .foregroundStyle(AppTheme.animatedTextColor(at: timeline.date))
         }
-        Text(title)
     }
 }
 
