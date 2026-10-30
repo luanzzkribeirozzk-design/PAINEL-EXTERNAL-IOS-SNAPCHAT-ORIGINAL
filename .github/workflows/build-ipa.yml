@@ -11,7 +11,7 @@ permissions:
 jobs:
   build-ipa:
     name: Build Snapchat IPA
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       PROJECT: ThreeOneOSFive.xcodeproj
       SCHEME: 3105
