@@ -206,65 +206,6 @@ struct OnboardingView: View {
     private var versionsPage: some View {
         VStack(spacing: 20) {
             featureIcon(systemName: "iphone.gen2", color: AppTheme.accent)
-
-            VStack(spacing: 8) {
-                Text(language.text("onboarding.versions_title"))
-                    .font(.title3.weight(.bold))
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-                Text(language.text("onboarding.versions_subtitle"))
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            VStack(alignment: .leading, spacing: 10) {
-                versionRow(icon: "checkmark.circle.fill", title: "iOS 17", value: ExploitSupportPolicy.verifiedIOS17Range, color: .green)
-                versionRow(icon: "checkmark.circle.fill", title: "iOS 18", value: ExploitSupportPolicy.verifiedIOS18Range, color: .green)
-                versionRow(icon: "checkmark.circle.fill", title: "iOS 26", value: ExploitSupportPolicy.verifiedIOS26Range, color: .green)
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
-                        Text("iOS 27.0").font(.subheadline.weight(.semibold))
-                        Spacer()
-                        Text(language.text("onboarding.beta")).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
-                    }
-                    ForEach(ExploitSupportPolicy.verifiedIOS27Builds, id: \.build) { v in
-                        let betaLabel = language.text("onboarding.developer_beta", "\(v.beta)")
-                            + (v.publicBeta.map {
-                                " · " + language.text("onboarding.public_beta", "\($0)")
-                            } ?? "")
-                        ViewThatFits(in: .horizontal) {
-                            HStack(spacing: 12) {
-                                Text(betaLabel)
-                                Spacer()
-                                Text(v.build)
-                                    .font(.caption.monospaced().weight(.medium))
-                            }
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(betaLabel)
-                                Text(v.build)
-                                    .font(.caption.monospaced().weight(.medium))
-                            }
-                        }
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.secondary)
-                        .padding(.leading, 24)
-                    }
-                }
-                .padding(12)
-                .background(
-                    Color(uiColor: .secondarySystemBackground),
-                    in: RoundedRectangle(cornerRadius: 10, style: .continuous)
-                )
-            }
-
-            Text(language.text("onboarding.versions_footer", AppInfo.osVersion, AppInfo.osBuild))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .top)
     }
