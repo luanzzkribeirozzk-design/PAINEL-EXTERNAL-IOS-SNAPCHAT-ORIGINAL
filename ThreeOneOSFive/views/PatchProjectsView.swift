@@ -636,16 +636,16 @@ private struct PatchProjectDetailView: View {
         VStack(spacing: 14) {
             Spacer()
 
-            Button {
-                apply()
-            } label: {
-                Label("ATIVAR", systemImage: "checkmark.shield.fill")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(SnapchatActionButtonStyle())
-            .disabled(isWorking || isApplied)
-
-            if isApplied {
+            if !isApplied {
+                Button {
+                    apply()
+                } label: {
+                    Label("ATIVAR", systemImage: "checkmark.shield.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(SnapchatActionButtonStyle())
+                .disabled(isWorking)
+            } else {
                 Button(role: .destructive) {
                     restore(allowChangedTargets: true)
                 } label: {
