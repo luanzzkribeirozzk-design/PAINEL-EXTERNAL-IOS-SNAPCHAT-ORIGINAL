@@ -25,13 +25,13 @@ enum AppTheme {
 
     static func animatedTextColor(at date: Date) -> Color {
         let palette: [UIColor] = [
-            UIColor(red: 0.02, green: 0.36, blue: 1.00, alpha: 1.00),
-            UIColor(red: 0.68, green: 0.04, blue: 1.00, alpha: 1.00),
-            UIColor(red: 1.00, green: 0.03, blue: 0.14, alpha: 1.00),
-            UIColor(red: 0.00, green: 0.92, blue: 0.24, alpha: 1.00),
-            UIColor(red: 1.00, green: 0.86, blue: 0.00, alpha: 1.00)
+            UIColor(red: 0.00, green: 0.20, blue: 1.00, alpha: 1.00),
+            UIColor(red: 0.80, green: 0.00, blue: 1.00, alpha: 1.00),
+            UIColor(red: 1.00, green: 0.00, blue: 0.08, alpha: 1.00),
+            UIColor(red: 0.00, green: 1.00, blue: 0.12, alpha: 1.00),
+            UIColor(red: 1.00, green: 0.95, blue: 0.00, alpha: 1.00)
         ]
-        let cycleDuration = 10.0
+        let cycleDuration = 1.0
         let progress = date.timeIntervalSinceReferenceDate
             .truncatingRemainder(dividingBy: cycleDuration) / cycleDuration
             * Double(palette.count)
@@ -99,6 +99,8 @@ struct AnimatedTextAppearance: ViewModifier {
                         ? AppTheme.animatedTextColor(at: timeline.date)
                         : AppTheme.accent
                 )
+                .saturation(10)
+                .brightness(0.10)
                 .fontWeight(.bold)
         }
     }

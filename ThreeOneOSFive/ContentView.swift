@@ -243,6 +243,8 @@ private struct CompactTabLabel: View {
                 Text(title)
             }
             .foregroundStyle(AppTheme.animatedTextColor(at: timeline.date))
+            .saturation(10)
+            .brightness(0.10)
         }
     }
 }
