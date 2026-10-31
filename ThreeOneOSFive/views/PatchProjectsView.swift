@@ -448,9 +448,11 @@ private struct PatchProjectRow: View {
                     .font(.body.weight(.semibold))
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
+                    .animatedTextAppearance()
                 if let author = item.project?.author, !author.isEmpty {
                     Text(language.text("patch.by_author", author))
                         .font(.caption)
+                        .animatedTextAppearance()
                 }
             }
             Spacer()

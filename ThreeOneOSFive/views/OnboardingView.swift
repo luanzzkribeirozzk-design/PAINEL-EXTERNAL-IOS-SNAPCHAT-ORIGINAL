@@ -214,7 +214,9 @@ struct OnboardingView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
-                        Text("iOS 27.0").font(.subheadline.weight(.semibold))
+                        Text("iOS 27.0")
+                            .font(.subheadline.weight(.semibold))
+                            .animatedTextAppearance()
                         Spacer()
                         Text(language.text("onboarding.beta")).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
                     }
@@ -308,7 +310,9 @@ struct OnboardingView: View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 10) {
                 Image(systemName: icon).foregroundStyle(color)
-                Text(title).fontWeight(.semibold)
+                                Text(title)
+                                    .fontWeight(.semibold)
+                                    .animatedTextAppearance()
                 Spacer()
                 Text(value)
                     .font(.subheadline.monospaced())
@@ -320,7 +324,7 @@ struct OnboardingView: View {
                         .foregroundStyle(color)
                     Text(title)
                         .fontWeight(.semibold)
-                        .foregroundStyle(.primary)
+                        .animatedTextAppearance()
                 }
                 Text(value)
                     .font(.subheadline.monospaced())
