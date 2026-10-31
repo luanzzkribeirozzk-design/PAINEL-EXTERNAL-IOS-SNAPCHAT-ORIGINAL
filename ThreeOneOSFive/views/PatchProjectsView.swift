@@ -454,12 +454,6 @@ private struct PatchProjectRow: View {
                 }
             }
             Spacer()
-            if item.summary.isPasswordProtected,
-               item.project?.name.localizedCaseInsensitiveCompare("PAINEL EXTERNAL") != .orderedSame {
-                Image(systemName: "key.fill")
-                    .font(.caption)
-                    .accessibilityLabel(language.text("patch.password_protected"))
-            }
             if item.project?.isPrivate == true {
                 Image(systemName: "eye.slash.fill")
                     .font(.caption)
