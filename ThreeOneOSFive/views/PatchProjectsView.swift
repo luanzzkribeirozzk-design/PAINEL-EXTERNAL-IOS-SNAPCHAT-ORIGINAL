@@ -606,6 +606,7 @@ private struct PatchProjectDetailView: View {
     @State private var showResetConfirmation = false
     @State private var restoreChangedPaths: [String] = []
     @State private var isWorking = false
+    @State private var isApplied = false
     @State private var actionAlert: PatchStoreAlert?
     @State private var shareRequest: PatchShareRequest?
 
@@ -632,9 +633,9 @@ private struct PatchProjectDetailView: View {
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(SnapchatActionButtonStyle())
-            .disabled(isWorking || receipt != nil)
+            .disabled(isWorking || isApplied)
 
-            if receipt != nil {
+            if isApplied {
                 Button(role: .destructive) {
                     restore(allowChangedTargets: true)
                 } label: {
@@ -650,6 +651,9 @@ private struct PatchProjectDetailView: View {
         .padding(.horizontal, 20)
         .navigationTitle(item?.project?.name ?? language.text("patch.title"))
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            isApplied = receipt != nil
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 if isWorking {
@@ -743,6 +747,7 @@ private struct PatchProjectDetailView: View {
                 _ = try DevicePatchService.apply(project: project)
                 await MainActor.run {
                     store.reload()
+                    isApplied = true
                     isWorking = false
                     actionAlert = nil
                 }
@@ -825,6 +830,7 @@ private struct PatchProjectDetailView: View {
                 if inspection.changedTargets.isEmpty {
                     try DevicePatchService.restore(receipt: receipt)
                     await MainActor.run {
+                        isApplied = false
                         isWorking = false
                         actionAlert = nil
                     }
@@ -866,6 +872,7 @@ private struct PatchProjectDetailView: View {
                     allowChangedTargets: allowChangedTargets
                 )
                 await MainActor.run {
+                    isApplied = false
                     isWorking = false
                     actionAlert = nil
                 }

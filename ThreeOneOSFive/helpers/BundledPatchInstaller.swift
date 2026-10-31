@@ -16,7 +16,11 @@ enum BundledPatchInstaller {
 
         do {
             let destinationRoot = try PatchProjectLibrary.packageRootURL(fileManager: fileManager)
-            let existingIDs = Set(PatchProjectLibrary.load(fileManager: fileManager).map(\.id))
+            let existingItems = Dictionary(
+                uniqueKeysWithValues: PatchProjectLibrary.load(fileManager: fileManager).map {
+                    ($0.id, $0)
+                }
+            )
             let packages = try fileManager.contentsOfDirectory(
                 at: resourceFolder,
                 includingPropertiesForKeys: [.isRegularFileKey],
@@ -26,13 +30,12 @@ enum BundledPatchInstaller {
             for sourceURL in packages where sourceURL.pathExtension.lowercased() == "3105" {
                 let data = try Data(contentsOf: sourceURL, options: .mappedIfSafe)
                 let summary = try PatchPackageCodec.inspect(data)
-                guard !existingIDs.contains(summary.packageID) else { continue }
-
-                let destination = uniqueDestination(
-                    named: sourceURL.lastPathComponent,
-                    in: destinationRoot,
-                    fileManager: fileManager
-                )
+                let destination = existingItems[summary.packageID]?.packageURL
+                    ?? uniqueDestination(
+                        named: sourceURL.lastPathComponent,
+                        in: destinationRoot,
+                        fileManager: fileManager
+                    )
                 try data.write(to: destination, options: [.atomic, .completeFileProtection])
             }
         } catch {

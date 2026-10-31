@@ -31,7 +31,7 @@ enum AppTheme {
             UIColor(red: 0.00, green: 0.92, blue: 0.24, alpha: 1.00),
             UIColor(red: 1.00, green: 0.86, blue: 0.00, alpha: 1.00)
         ]
-        let cycleDuration = 20.0
+        let cycleDuration = 10.0
         let progress = date.timeIntervalSinceReferenceDate
             .truncatingRemainder(dividingBy: cycleDuration) / cycleDuration
             * Double(palette.count)

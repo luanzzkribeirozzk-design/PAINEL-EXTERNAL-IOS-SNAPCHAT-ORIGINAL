@@ -492,7 +492,7 @@
 "tab.explore" = "探索";
 "tab.sources" = "软件源";
 "tab.installed" = "已安装";
-"tab.panel" = "Painel";
+"tab.panel" = "FUNÇÕES";
 "installed.search" = "搜索补丁或壁纸";
 "installed.empty_title" = "尚未安装内容";
 "installed.empty_message" = "导入 .3105 补丁或 .tendies 壁纸包即可开始。";
