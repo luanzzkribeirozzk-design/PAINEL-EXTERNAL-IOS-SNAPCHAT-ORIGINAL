@@ -141,6 +141,19 @@ struct PatchProjectsView: View {
                 .listStyle(.insetGrouped)
             }
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    VStack(spacing: 1) {
+                        Text("ZAYRON STORE")
+                            .font(.headline.weight(.heavy))
+                            .foregroundStyle(.red)
+                        Text("Dev: LN XITER")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.white)
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+            }
             .sheet(isPresented: $showImporter) {
                 FileDocumentPicker(
                     allowedContentTypes: PatchPackagePickerPolicy.allowedContentTypes,
