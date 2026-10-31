@@ -112,6 +112,7 @@ struct ContentView: View {
                     } label: {
                         Label(language.text(section.titleKey), systemImage: section.systemImage)
                             .fontWeight(section.rawValue == tabNavigation.selectedTab ? .semibold : .regular)
+                            .animatedTextAppearance()
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .contentShape(Rectangle())
                     }
@@ -126,7 +127,13 @@ struct ContentView: View {
                     )
                 }
             }
-            .navigationTitle("Snapchat")
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Snapchat")
+                        .font(.headline.weight(.bold))
+                        .animatedTextAppearance()
+                }
+            }
             .navigationSplitViewColumnWidth(min: 210, ideal: 240, max: 300)
         } detail: {
             sectionContent(selectedVisibleSection)

@@ -655,12 +655,18 @@ private struct PatchProjectDetailView: View {
             Spacer()
         }
         .padding(.horizontal, 20)
-        .navigationTitle(patchFilename)
+        .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             isApplied = receipt != nil
         }
         .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text(patchFilename)
+                    .font(.headline.weight(.bold))
+                    .lineLimit(1)
+                    .animatedTextAppearance()
+            }
             ToolbarItem(placement: .navigationBarTrailing) {
                 if isWorking {
                     ProgressView()
