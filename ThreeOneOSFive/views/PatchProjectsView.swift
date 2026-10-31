@@ -436,11 +436,15 @@ private struct PatchProjectRow: View {
     let item: PatchLibraryItem
     let language: AppLanguage
 
+    private var patchFilename: String {
+        item.packageURL.deletingPathExtension().lastPathComponent
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             SnapchatPatchIcon(item: item)
             VStack(alignment: .leading, spacing: 3) {
-                Text(item.project?.name ?? language.text("patch.locked_project"))
+                Text(patchFilename.isEmpty ? language.text("patch.locked_project") : patchFilename)
                     .font(.body.weight(.semibold))
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
@@ -622,6 +626,12 @@ private struct PatchProjectDetailView: View {
         (item?.summary.schemaVersion ?? 1) >= 2
     }
 
+    private var patchFilename: String {
+        guard let item else { return language.text("patch.title") }
+        let name = item.packageURL.deletingPathExtension().lastPathComponent
+        return name.isEmpty ? language.text("patch.title") : name
+    }
+
     var body: some View {
         VStack(spacing: 14) {
             Spacer()
@@ -649,7 +659,7 @@ private struct PatchProjectDetailView: View {
             Spacer()
         }
         .padding(.horizontal, 20)
-        .navigationTitle(item?.project?.name ?? language.text("patch.title"))
+        .navigationTitle(patchFilename)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             isApplied = receipt != nil
