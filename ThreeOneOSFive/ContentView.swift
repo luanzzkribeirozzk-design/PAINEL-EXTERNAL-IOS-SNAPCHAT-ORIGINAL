@@ -287,9 +287,13 @@ struct LicenseLoginView: View {
                     Spacer(minLength: 55)
                     ZStack {
                         Circle().fill(AppTheme.accent.opacity(0.20)).frame(width: 104, height: 104).blur(radius: 8)
-                        Image(systemName: "lock.shield.fill")
-                            .font(.system(size: 48, weight: .bold))
-                            .foregroundStyle(AppTheme.accent)
+                        Image("ExternalIcon")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 82, height: 82)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(.white.opacity(0.42), lineWidth: 1))
+                            .shadow(color: AppTheme.accent.opacity(0.45), radius: 12, y: 5)
                     }
                     VStack(spacing: 6) {
                         Text("EXTERNAL IOS")
@@ -352,19 +356,30 @@ struct LicenseLoginView: View {
 private struct LoginPrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label.font(.subheadline.weight(.black)).foregroundStyle(.white)
+            .frame(maxWidth: .infinity, minHeight: 54)
             .padding(.vertical, 16)
-            .background(AppTheme.accent.opacity(configuration.isPressed ? 0.72 : 1), in: RoundedRectangle(cornerRadius: 16))
+            .background(
+                LinearGradient(
+                    colors: [
+                        AppTheme.accent,
+                        Color(red: 0.08, green: 0.56, blue: 0.96)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                in: RoundedRectangle(cornerRadius: 16, style: .continuous)
+            )
             .shadow(color: AppTheme.accent.opacity(0.35), radius: 10, y: 5)
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .opacity(configuration.isPressed ? 0.82 : 1)
     }
 }
 
 private struct LoginSecondaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label.font(.subheadline.weight(.black)).foregroundStyle(.white.opacity(0.92))
+            .frame(maxWidth: .infinity, minHeight: 54)
             .padding(.vertical, 16)
             .background(.white.opacity(configuration.isPressed ? 0.17 : 0.09), in: RoundedRectangle(cornerRadius: 16))
             .overlay(RoundedRectangle(cornerRadius: 16).stroke(AppTheme.accent.opacity(0.65), lineWidth: 1.2))
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
     }
 }

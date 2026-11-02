@@ -1,13 +1,16 @@
 import SwiftUI
 
 enum AppTheme {
-    static let accent = Color(
-        uiColor: UIColor { traits in
+    static var accent: Color {
+        if UserDefaults.standard.string(forKey: VisualPreferences.appearanceKey) == VisualAppearance.defaultGreen.rawValue {
+            return Color(red: 0.08, green: 0.82, blue: 0.40)
+        }
+        return Color(uiColor: UIColor { traits in
             traits.userInterfaceStyle == .dark
                 ? UIColor(red: 1.00, green: 0.48, blue: 0.20, alpha: 1.00)
                 : UIColor(red: 0.98, green: 0.28, blue: 0.06, alpha: 1.00)
-        }
-    )
+        })
+    }
     static let pageBackground = Color(uiColor: .systemBackground)
     static let consoleBackground = Color(uiColor: .secondarySystemBackground)
     static let pageInset: CGFloat = 16
@@ -65,6 +68,7 @@ enum VisualPreferences {
 }
 
 enum VisualAppearance: String, CaseIterable, Identifiable {
+    case defaultGreen
     case system
     case light
     case dark
@@ -73,6 +77,7 @@ enum VisualAppearance: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
+        case .defaultGreen: return "PADRÃO"
         case .system: return "Sistema"
         case .light: return "Claro"
         case .dark: return "Escuro"
@@ -81,6 +86,7 @@ enum VisualAppearance: String, CaseIterable, Identifiable {
 
     var colorScheme: ColorScheme? {
         switch self {
+        case .defaultGreen: return .dark
         case .system: return nil
         case .light: return .light
         case .dark: return .dark
@@ -187,7 +193,7 @@ struct SnapchatPatchIcon: View {
     let item: PatchLibraryItem
 
     var body: some View {
-        Image("PatchCardIcon")
+        Image("ExternalIcon")
             .resizable()
             .scaledToFill()
             .frame(width: 52, height: 52)
