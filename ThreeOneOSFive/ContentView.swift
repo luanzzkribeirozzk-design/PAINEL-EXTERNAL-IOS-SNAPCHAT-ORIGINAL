@@ -311,9 +311,6 @@ struct LicenseLoginView: View {
                         .padding(17)
                         .background(.black.opacity(0.28), in: RoundedRectangle(cornerRadius: 16))
                         .overlay(RoundedRectangle(cornerRadius: 16).stroke(.white.opacity(0.16)))
-                        Text("Por segurança, a key só pode ser inserida pelo botão COLAR.")
-                            .font(.caption)
-                            .foregroundStyle(.white.opacity(0.52))
                     }
                     HStack(spacing: 12) {
                         Button {
@@ -344,11 +341,6 @@ struct LicenseLoginView: View {
                             .padding(14)
                             .background(.red.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
                     }
-                    Text("A autorização é confirmada pelo servidor seguro. Nenhum segredo administrativo fica dentro do aplicativo.")
-                        .font(.caption)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.white.opacity(0.52))
-                        .padding(.horizontal, 20)
                     Spacer(minLength: 40)
                 }
                 .padding(.horizontal, 24)
