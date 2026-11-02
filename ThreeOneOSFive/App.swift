@@ -1,9 +1,12 @@
 import SwiftUI
 import UIKit
+import Foundation
+import Security
 
 @main
 struct ThreeOneOSFiveApp: App {
     @StateObject private var appState = AppState()
+    @StateObject private var licenseSession = LicenseSession()
     @StateObject private var patchDraftCoordinator = PatchDraftCoordinator()
     @StateObject private var fileOperationCoordinator = FileOperationCoordinator()
     @StateObject private var patchStore = PatchProjectStore()
@@ -26,16 +29,26 @@ struct ThreeOneOSFiveApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                ContentView()
-                    .environmentObject(appState)
-                    .environmentObject(patchDraftCoordinator)
-                    .environmentObject(fileOperationCoordinator)
-                    .environmentObject(patchStore)
-                    .environmentObject(repositoryStore)
-                    .environment(\.appLanguage, language)
-                    .environment(\.locale, language.locale)
-                    .opacity(showOnboarding ? 0 : 1)
-                    .allowsHitTesting(!showOnboarding)
+                Group {
+                    if licenseSession.isAuthorized {
+                        ContentView()
+                            .environmentObject(appState)
+                            .environmentObject(patchDraftCoordinator)
+                            .environmentObject(fileOperationCoordinator)
+                            .environmentObject(patchStore)
+                            .environmentObject(repositoryStore)
+                            .environmentObject(licenseSession)
+                            .environment(\.appLanguage, language)
+                            .environment(\.locale, language.locale)
+                            .opacity(showOnboarding ? 0 : 1)
+                            .allowsHitTesting(!showOnboarding)
+                    } else {
+                        LicenseLoginView()
+                            .environmentObject(licenseSession)
+                            .environment(\.appLanguage, language)
+                            .environment(\.locale, language.locale)
+                    }
+                }
 
                 if showOnboarding {
                     OnboardingView {
@@ -60,18 +73,138 @@ struct ThreeOneOSFiveApp: App {
                 DisplayAttributionSheet()
             }
             .onAppear {
-                if !showOnboarding {
+                licenseSession.restore()
+                if !showOnboarding && licenseSession.isAuthorized {
                     appState.detectSupport()
                 }
             }
             .onChange(of: scenePhase) { phase in
-                guard phase == .active, !showOnboarding else { return }
-                appState.detectSupport()
+                guard phase == .active else { return }
+                licenseSession.revalidateIfNeeded()
+                if !showOnboarding && licenseSession.isAuthorized { appState.detectSupport() }
+            }
+            .onChange(of: licenseSession.isAuthorized) { authorized in
+                if authorized && !showOnboarding { appState.detectSupport() }
             }
             .onOpenURL { url in
                 patchDraftCoordinator.presentImport(url)
             }
         }
+    }
+}
+
+@MainActor
+final class LicenseSession: ObservableObject {
+    @Published private(set) var isAuthorized = false
+    @Published private(set) var isLoading = false
+    @Published var errorMessage: String?
+
+    private let endpoint = URL(string: "https://painel-dono-external-ios.vercel.app/api/license/activate")!
+    private let keychainService = "com.apple.mobile.MobileHouseArrest.license-session"
+    private var lastValidation = Date.distantPast
+
+    func restore() {
+        guard !isLoading, let key = read("license-key"), let device = read("installation-id") else { return }
+        validate(key: key, deviceID: device, persistKey: false)
+    }
+
+    func revalidateIfNeeded() {
+        guard Date().timeIntervalSince(lastValidation) > 60,
+              let key = read("license-key"), let device = read("installation-id") else { return }
+        validate(key: key, deviceID: device, persistKey: false)
+    }
+
+    func activate(key: String) {
+        let normalized = key.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalized.isEmpty, normalized.count <= 160 else {
+            errorMessage = "Digite uma key válida."
+            return
+        }
+        let device = read("installation-id") ?? makeInstallationID()
+        validate(key: normalized, deviceID: device, persistKey: true)
+    }
+
+    func logout() {
+        delete("license-key")
+        isAuthorized = false
+        errorMessage = nil
+    }
+
+    private func validate(key: String, deviceID: String, persistKey: Bool) {
+        guard !isLoading else { return }
+        isLoading = true
+        errorMessage = nil
+        var request = URLRequest(url: endpoint)
+        request.httpMethod = "POST"
+        request.timeoutInterval = 15
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["key": key, "deviceId": deviceID])
+
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, _ in
+            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+            let payload = (try? JSONSerialization.jsonObject(with: data ?? Data())) as? [String: Any]
+            let serverError = payload?["error"] as? String
+            Task { @MainActor in
+                guard let self else { return }
+                self.isLoading = false
+                self.lastValidation = Date()
+                guard (200..<300).contains(statusCode), payload?["ok"] as? Bool == true else {
+                    self.isAuthorized = false
+                    self.delete("license-key")
+                    self.errorMessage = Self.userMessage(for: serverError, status: statusCode)
+                    return
+                }
+                if persistKey {
+                    self.write(key, account: "license-key")
+                    self.write(deviceID, account: "installation-id")
+                }
+                self.isAuthorized = true
+                self.errorMessage = nil
+            }
+        }.resume()
+    }
+
+    private func makeInstallationID() -> String {
+        let value = "install-" + UUID().uuidString
+        write(value, account: "installation-id")
+        return value
+    }
+
+    private static func userMessage(for code: String?, status: Int) -> String {
+        switch code {
+        case "KEY_INVÁLIDA": return "Key inválida."
+        case "KEY_PAUSADA": return "Esta key está pausada."
+        case "KEY_EXPIRADA": return "Esta key expirou."
+        case "LIMITE_DE_DISPOSITIVOS": return "Limite de dispositivos atingido."
+        case "DISPOSITIVO_BLOQUEADO": return "Este dispositivo está bloqueado."
+        case "IP_BLOQUEADO": return "Este IP está bloqueado."
+        case "SISTEMA_PAUSADO": return "O sistema está temporariamente pausado."
+        default: return status == 0 ? "Não foi possível conectar ao servidor." : "Não foi possível validar a key."
+        }
+    }
+
+    private func write(_ value: String, account: String) {
+        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: keychainService, kSecAttrAccount as String: account]
+        let data = Data(value.utf8)
+        let attributes: [String: Any] = [kSecValueData as String: data, kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly]
+        if SecItemUpdate(query as CFDictionary, attributes as CFDictionary) != errSecSuccess {
+            var item = query
+            attributes.forEach { item[$0.key] = $0.value }
+            _ = SecItemAdd(item as CFDictionary, nil)
+        }
+    }
+
+    private func read(_ account: String) -> String? {
+        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: keychainService, kSecAttrAccount as String: account, kSecReturnData as String: true, kSecMatchLimit as String: kSecMatchLimitOne]
+        var result: CFTypeRef?
+        guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess, let data = result as? Data else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
+
+    private func delete(_ account: String) {
+        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: keychainService, kSecAttrAccount as String: account]
+        _ = SecItemDelete(query as CFDictionary)
     }
 }
 

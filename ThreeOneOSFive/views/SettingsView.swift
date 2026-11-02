@@ -4,6 +4,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appLanguage) private var language
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var licenseSession: LicenseSession
     @AppStorage(AppLanguage.storageKey) private var languageCode = AppLanguage.english.rawValue
     @AppStorage(FeatureVisibility.cleanerStorageKey) private var cleanerEnabled = true
     @AppStorage(FeatureVisibility.developerModeStorageKey)
@@ -47,6 +48,15 @@ struct SettingsView: View {
                         ForEach(VisualAppearance.allCases) { appearance in
                             Text(appearance.title).tag(appearance.rawValue)
                         }
+                    }
+                }
+
+                Section("Acesso") {
+                    Button(role: .destructive) {
+                        licenseSession.logout()
+                        dismiss()
+                    } label: {
+                        Label("Sair da key", systemImage: "rectangle.portrait.and.arrow.right")
                     }
                 }
 

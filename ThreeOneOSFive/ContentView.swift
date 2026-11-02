@@ -272,3 +272,119 @@ private extension AppSection {
         }
     }
 }
+
+
+struct LicenseLoginView: View {
+    @EnvironmentObject private var session: LicenseSession
+    @State private var key = ""
+    @State private var showKey = false
+
+    var body: some View {
+        ZStack {
+            SnapchatAnimatedBackground()
+                .ignoresSafeArea()
+            ScrollView {
+                VStack(spacing: 22) {
+                    Spacer(minLength: 55)
+                    ZStack {
+                        Circle()
+                            .fill(AppTheme.accent.opacity(0.20))
+                            .frame(width: 104, height: 104)
+                            .blur(radius: 8)
+                        Image(systemName: "lock.shield.fill")
+                            .font(.system(size: 48, weight: .bold))
+                            .foregroundStyle(AppTheme.accent)
+                    }
+                    VStack(spacing: 6) {
+                        Text("SNAPCHAT")
+                            .font(.system(size: 31, weight: .black, design: .rounded))
+                            .foregroundStyle(.white)
+                        Text("ACESSE COM SUA KEY")
+                            .font(.caption.weight(.bold))
+                            .tracking(2.2)
+                            .foregroundStyle(.white.opacity(0.62))
+                    }
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("KEY DE ACESSO")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(.white.opacity(0.72))
+                        HStack(spacing: 8) {
+                            Group {
+                                if showKey {
+                                    TextField("Digite sua key", text: $key)
+                                } else {
+                                    SecureField("Digite sua key", text: $key)
+                                }
+                            }
+                            .textInputAutocapitalization(.characters)
+                            .autocorrectionDisabled()
+                            .foregroundStyle(.white)
+                            Button { showKey.toggle() } label: {
+                                Image(systemName: showKey ? "eye.slash.fill" : "eye.fill")
+                                    .foregroundStyle(.white.opacity(0.65))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 15)
+                        .background(.black.opacity(0.28), in: RoundedRectangle(cornerRadius: 15))
+                        .overlay(RoundedRectangle(cornerRadius: 15).stroke(.white.opacity(0.16)))
+                    }
+                    HStack(spacing: 10) {
+                        Button { key = UIPasteboard.general.string ?? "" } label: {
+                            Label("COLAR", systemImage: "doc.on.clipboard")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(LoginSecondaryButtonStyle())
+                        Button { session.activate(key: key) } label: {
+                            if session.isLoading {
+                                ProgressView().tint(.white)
+                            } else {
+                                Label("ENTRAR", systemImage: "arrow.right.circle.fill")
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .buttonStyle(LoginPrimaryButtonStyle())
+                        .disabled(session.isLoading || key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
+                    if let message = session.errorMessage {
+                        Label(message, systemImage: "exclamationmark.triangle.fill")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.red.opacity(0.95))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(14)
+                            .background(.red.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
+                    }
+                    Text("A autorização é confirmada pelo servidor seguro. Nenhum segredo administrativo fica dentro do aplicativo.")
+                        .font(.caption)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.white.opacity(0.52))
+                        .padding(.horizontal, 20)
+                    Spacer(minLength: 40)
+                }
+                .padding(.horizontal, 24)
+            }
+        }
+    }
+}
+
+private struct LoginPrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.subheadline.weight(.black))
+            .foregroundStyle(.white)
+            .padding(.vertical, 15)
+            .background(AppTheme.accent.opacity(configuration.isPressed ? 0.72 : 1), in: RoundedRectangle(cornerRadius: 15))
+    }
+}
+
+private struct LoginSecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.subheadline.weight(.bold))
+            .foregroundStyle(.white.opacity(0.88))
+            .padding(.vertical, 15)
+            .background(.white.opacity(configuration.isPressed ? 0.16 : 0.09), in: RoundedRectangle(cornerRadius: 15))
+            .overlay(RoundedRectangle(cornerRadius: 15).stroke(.white.opacity(0.18)))
+    }
+}
