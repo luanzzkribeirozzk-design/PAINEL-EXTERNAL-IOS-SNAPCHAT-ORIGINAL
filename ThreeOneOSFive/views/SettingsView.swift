@@ -22,7 +22,7 @@ struct SettingsView: View {
                         AppLogo()
 
                         VStack(alignment: .leading, spacing: 3) {
-                            Text("Snapchat").font(.headline)
+                            Text("EXTERNAL IOS").font(.headline)
                             Text(language.text("common.version", appVersion))
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
@@ -51,7 +51,31 @@ struct SettingsView: View {
                     }
                 }
 
-                Section("Acesso") {
+                Section("LICENÇA") {
+                    HStack(alignment: .top, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("KEY USADA")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.secondary)
+                            Text(licenseSession.activeKey.isEmpty ? "Não disponível" : licenseSession.activeKey)
+                                .font(.footnote.monospaced().weight(.semibold))
+                                .textSelection(.enabled)
+                                .lineLimit(2)
+                        }
+                        Spacer()
+                        Button { UIPasteboard.general.string = licenseSession.activeKey } label: {
+                            Label("COPIAR", systemImage: "doc.on.doc.fill")
+                                .font(.caption.weight(.bold))
+                        }
+                        .disabled(licenseSession.activeKey.isEmpty)
+                    }
+                    LabeledContent("Data e hora de uso", value: formatted(licenseSession.activatedAt))
+                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                        LabeledContent("Tempo restante", value: remaining(from: context.date))
+                    }
+                }
+
+                Section("ACESSO") {
                     Button(role: .destructive) {
                         licenseSession.logout()
                         dismiss()
@@ -169,7 +193,7 @@ struct SettingsView: View {
             }
             .tint(AppTheme.accent)
             .animatedTextAppearance()
-            .navigationTitle(language.text("settings.title"))
+            .navigationTitle("CONFIG")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -178,6 +202,17 @@ struct SettingsView: View {
                 }
             }
         }
+    }
+
+    private func formatted(_ date: Date?) -> String {
+        guard let date else { return "Aguardando primeira ativação" }
+        return date.formatted(date: .numeric, time: .standard)
+    }
+
+    private func remaining(from now: Date) -> String {
+        guard let expires = licenseSession.expiresAt else { return "Indisponível" }
+        let seconds = max(0, Int(expires.timeIntervalSince(now)))
+        return "\(seconds / 86_400)d \((seconds % 86_400) / 3_600)h \((seconds % 3_600) / 60)m \(seconds % 60)s"
     }
 
     private var appVersion: String {

@@ -159,7 +159,7 @@ struct SnapchatLaunchView: View {
                 AppLogo(size: 92)
                     .scaleEffect(isVisible ? 1 : 0.72)
                     .opacity(isVisible ? 1 : 0)
-                Text("Snapchat")
+                Text("EXTERNAL IOS")
                     .font(.system(size: 30, weight: .heavy, design: .rounded))
                     .foregroundStyle(.white)
                     .opacity(isVisible ? 1 : 0)

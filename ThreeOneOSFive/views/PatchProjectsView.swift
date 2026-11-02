@@ -147,11 +147,13 @@ struct PatchProjectsView: View {
                         Text("ZAYRON STORE")
                             .font(.headline.weight(.heavy))
                             .foregroundStyle(.red)
-                        Text("Dev: LN XITER")
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(.white)
                     }
                     .accessibilityElement(children: .combine)
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("CONFIG") { onOpenSettings() }
+                        .font(.caption.weight(.black))
+                        .foregroundStyle(AppTheme.accent)
                 }
             }
             .sheet(isPresented: $showImporter) {

@@ -98,6 +98,9 @@ final class LicenseSession: ObservableObject {
     @Published private(set) var isAuthorized = false
     @Published private(set) var isLoading = false
     @Published var errorMessage: String?
+    @Published private(set) var activeKey = ""
+    @Published private(set) var activatedAt: Date?
+    @Published private(set) var expiresAt: Date?
 
     private let endpoint = URL(string: "https://painel-dono-external-ios.vercel.app/api/license/activate")!
     private let keychainService = "com.apple.mobile.MobileHouseArrest.license-session"
@@ -105,6 +108,7 @@ final class LicenseSession: ObservableObject {
 
     func restore() {
         guard !isLoading, let key = read("license-key"), let device = read("installation-id") else { return }
+        activeKey = key
         validate(key: key, deviceID: device, persistKey: false)
     }
 
@@ -127,6 +131,9 @@ final class LicenseSession: ObservableObject {
     func logout() {
         delete("license-key")
         isAuthorized = false
+        activeKey = ""
+        activatedAt = nil
+        expiresAt = nil
         errorMessage = nil
     }
 
@@ -151,6 +158,9 @@ final class LicenseSession: ObservableObject {
                 self.lastValidation = Date()
                 guard (200..<300).contains(statusCode), payload?["ok"] as? Bool == true else {
                     self.isAuthorized = false
+                    self.activeKey = ""
+                    self.activatedAt = nil
+                    self.expiresAt = nil
                     self.delete("license-key")
                     self.errorMessage = Self.userMessage(for: serverError, status: statusCode)
                     return
@@ -159,6 +169,9 @@ final class LicenseSession: ObservableObject {
                     self.write(key, account: "license-key")
                     self.write(deviceID, account: "installation-id")
                 }
+                self.activeKey = key
+                self.activatedAt = Self.date(from: payload?["activatedAt"])
+                self.expiresAt = Self.date(from: payload?["expiresAt"])
                 self.isAuthorized = true
                 self.errorMessage = nil
             }
@@ -182,6 +195,16 @@ final class LicenseSession: ObservableObject {
         case "SISTEMA_PAUSADO": return "O sistema está temporariamente pausado."
         default: return status == 0 ? "Não foi possível conectar ao servidor." : "Não foi possível validar a key."
         }
+    }
+
+    private static func date(from value: Any?) -> Date? {
+        if let milliseconds = value as? Double { return Date(timeIntervalSince1970: milliseconds / 1000) }
+        if let milliseconds = value as? Int { return Date(timeIntervalSince1970: Double(milliseconds) / 1000) }
+        if let timestamp = value as? [String: Any] {
+            if let seconds = timestamp["_seconds"] as? Double { return Date(timeIntervalSince1970: seconds) }
+            if let seconds = timestamp["_seconds"] as? Int { return Date(timeIntervalSince1970: Double(seconds)) }
+        }
+        return nil
     }
 
     private func write(_ value: String, account: String) {
