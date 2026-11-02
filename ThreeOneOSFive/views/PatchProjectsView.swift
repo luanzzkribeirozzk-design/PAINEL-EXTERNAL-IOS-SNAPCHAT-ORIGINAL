@@ -144,7 +144,7 @@ struct PatchProjectsView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     VStack(spacing: 1) {
-                        Text("ZAYRON STORE")
+                        Text("EXTERNAL IOS")
                             .font(.headline.weight(.heavy))
                             .foregroundStyle(.red)
                     }
