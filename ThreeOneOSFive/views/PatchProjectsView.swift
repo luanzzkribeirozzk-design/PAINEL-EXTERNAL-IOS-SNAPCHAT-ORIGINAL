@@ -611,6 +611,7 @@ extension View {
 
 private struct PatchProjectDetailView: View {
     @Environment(\.appLanguage) private var language
+    @EnvironmentObject private var licenseSession: LicenseSession
     @ObservedObject var store: PatchProjectStore
     let projectID: UUID
     @State private var showEditor = false
@@ -764,7 +765,9 @@ private struct PatchProjectDetailView: View {
     }
 
     private func apply() {
-        guard let item, let baseProject = item.project else { return }
+        guard licenseSession.isAuthorized,
+              let item,
+              let baseProject = item.project else { return }
         isWorking = true
         Task.detached(priority: .userInitiated) {
             do {
@@ -849,7 +852,7 @@ private struct PatchProjectDetailView: View {
     }
 
     private func prepareRestore() {
-        guard let receipt else { return }
+        guard licenseSession.isAuthorized, let receipt else { return }
         isWorking = true
         Task.detached(priority: .userInitiated) {
             do {
@@ -890,7 +893,7 @@ private struct PatchProjectDetailView: View {
     }
 
     private func restore(allowChangedTargets: Bool) {
-        guard let receipt else { return }
+        guard licenseSession.isAuthorized, let receipt else { return }
         isWorking = true
         Task.detached(priority: .userInitiated) {
             do {

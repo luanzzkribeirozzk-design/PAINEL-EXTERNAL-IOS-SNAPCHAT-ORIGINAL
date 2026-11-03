@@ -133,23 +133,14 @@ final class PackageRepositoryStore: ObservableObject {
     func refreshAllIfNeeded() {
         guard !refreshedThisLaunch else { return }
         refreshedThisLaunch = true
-        Task { [weak self] in
-            guard let self else { return }
-            await self.synchronizeDefaultSources()
-            self.refreshStoredSources()
-        }
+        refreshStoredSources()
     }
 
     func refreshAll() {
-        Task { [weak self] in
-            guard let self else { return }
-            await self.synchronizeDefaultSources()
-            self.refreshStoredSources()
-        }
+        refreshStoredSources()
     }
 
     func refreshAllAndWait() async {
-        await synchronizeDefaultSources()
         refreshStoredSources()
         while isRefreshing {
             try? await Task.sleep(nanoseconds: 100_000_000)
@@ -159,41 +150,6 @@ final class PackageRepositoryStore: ObservableObject {
     private func refreshStoredSources() {
         for source in sources {
             refresh(source)
-        }
-    }
-
-    private func synchronizeDefaultSources() async {
-        catalogSyncOperations += 1
-        defer { catalogSyncOperations -= 1 }
-        do {
-            let catalogURLs = try await PackageRepositoryNetworkClient
-                .loadSourceCatalog(from: PackageRepositoryDefaults.catalogURL)
-            let existingCount = sources.count
-            let merged = RepositorySourceMergePolicy.merge(
-                existing: sources,
-                catalogURLs: catalogURLs
-            )
-            guard merged.count > existingCount else {
-                log(
-                    "repository: default catalog synced " +
-                    "sources=\(catalogURLs.count) added=0"
-                )
-                return
-            }
-
-            sources = merged
-            for source in sources.dropFirst(existingCount) {
-                sourceStates[source.id] = .idle
-            }
-            persist()
-            log(
-                "repository: default catalog synced " +
-                "sources=\(catalogURLs.count) added=\(merged.count - existingCount)"
-            )
-        } catch let error as PackageRepositoryError {
-            log("repository: default catalog unavailable \(error)")
-        } catch {
-            log("repository: default catalog unavailable")
         }
     }
 

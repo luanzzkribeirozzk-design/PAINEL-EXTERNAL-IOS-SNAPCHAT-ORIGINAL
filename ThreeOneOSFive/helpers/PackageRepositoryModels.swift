@@ -235,12 +235,6 @@ enum PackageRepositoryLimits {
     static let maximumScreenshotCount = 12
 }
 
-enum PackageRepositoryDefaults {
-    static let catalogURL = URL(
-        string: "https://raw.githubusercontent.com/YangJiiii/3105-repo/main/sources.json"
-    )!
-}
-
 enum PackageRepositoryURLPolicy {
     static func validate(_ url: URL) throws -> URL {
         guard url.scheme?.lowercased() == "https",

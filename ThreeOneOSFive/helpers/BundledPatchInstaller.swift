@@ -28,8 +28,23 @@ enum BundledPatchInstaller {
             )
 
             for sourceURL in packages where sourceURL.pathExtension.lowercased() == "3105" {
-                let data = try Data(contentsOf: sourceURL, options: .mappedIfSafe)
-                let summary = try PatchPackageCodec.inspect(data)
+                let bundledData = try Data(contentsOf: sourceURL, options: .mappedIfSafe)
+                let bundledSummary = try PatchPackageCodec.inspect(bundledData)
+                let data: Data
+                let summary: PatchPackageSummary
+                if bundledSummary.isPasswordProtected {
+                    data = bundledData
+                    summary = bundledSummary
+                } else {
+                    let decoded = try PatchPackageCodec.decode(bundledData, password: nil)
+                    let protected = try PatchPackageCodec.encodeNew(
+                        project: decoded.project,
+                        password: "external-\(UUID().uuidString)-\(UUID().uuidString)"
+                    )
+                    data = protected.data
+                    summary = try PatchPackageCodec.inspect(data)
+                    try PatchKeyStore.store(protected.contentKey, for: summary)
+                }
                 let destination = existingItems[summary.packageID]?.packageURL
                     ?? uniqueDestination(
                         named: sourceURL.lastPathComponent,

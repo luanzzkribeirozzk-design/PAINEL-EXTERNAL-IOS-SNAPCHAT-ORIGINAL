@@ -45,9 +45,48 @@ enum PatchProjectLibrary {
             appropriateFor: nil,
             create: true
         )
-        let root = base.appendingPathComponent("PatchProjects", isDirectory: true)
+        let root = base.appendingPathComponent("ExternalPatches", isDirectory: true)
         try fileManager.createDirectory(at: root, withIntermediateDirectories: true)
+        try? fileManager.setAttributes(
+            [.protectionKey: FileProtectionType.complete],
+            ofItemAtPath: root.path
+        )
+        var resourceValues = URLResourceValues()
+        resourceValues.isExcludedFromBackup = true
+        try? root.setResourceValues(resourceValues)
+        migrateLegacyPackages(
+            from: base.appendingPathComponent("PatchProjects", isDirectory: true),
+            to: root,
+            fileManager: fileManager
+        )
         return root
+    }
+
+    private static func migrateLegacyPackages(
+        from legacyRoot: URL,
+        to root: URL,
+        fileManager: FileManager
+    ) {
+        guard fileManager.fileExists(atPath: legacyRoot.path),
+              let items = try? fileManager.contentsOfDirectory(
+                at: legacyRoot,
+                includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey],
+                options: [.skipsHiddenFiles]
+              ) else { return }
+        for item in items {
+            guard item.pathExtension.lowercased() == "3105" else { continue }
+            let destination = root.appendingPathComponent(item.lastPathComponent)
+            guard !fileManager.fileExists(atPath: destination.path) else { continue }
+            do {
+                try fileManager.moveItem(at: item, to: destination)
+                try? fileManager.setAttributes(
+                    [.protectionKey: FileProtectionType.complete],
+                    ofItemAtPath: destination.path
+                )
+            } catch {
+                log("patch: legacy migration skipped")
+            }
+        }
     }
 
     static func backupRootURL(fileManager: FileManager = .default) throws -> URL {
@@ -151,6 +190,10 @@ enum PatchProjectLibrary {
             destination = candidate
         }
         try data.write(to: destination, options: [.atomic, .completeFileProtection])
+        try? fileManager.setAttributes(
+            [.protectionKey: FileProtectionType.complete],
+            ofItemAtPath: destination.path
+        )
         return destination
     }
 
