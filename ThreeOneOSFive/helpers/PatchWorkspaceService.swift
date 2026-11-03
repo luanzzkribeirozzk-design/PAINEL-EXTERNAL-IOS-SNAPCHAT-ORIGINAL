@@ -20,10 +20,48 @@ enum PatchWorkspaceService {
     }
 
     static func patchesRootURL(fileManager: FileManager = .default) throws -> URL {
-        let documents = try documentsRootURL(fileManager: fileManager)
-        let root = documents.appendingPathComponent("Patches", isDirectory: true)
+        let root = try PatchProjectLibrary.packageRootURL(fileManager: fileManager)
+            .appendingPathComponent("Workspaces", isDirectory: true)
         try fileManager.createDirectory(at: root, withIntermediateDirectories: true)
+        try? fileManager.setAttributes(
+            [.protectionKey: FileProtectionType.complete],
+            ofItemAtPath: root.path
+        )
+        var resourceValues = URLResourceValues()
+        resourceValues.isExcludedFromBackup = true
+        try? root.setResourceValues(resourceValues)
+        migrateLegacyDocumentsPatches(
+            to: root,
+            fileManager: fileManager
+        )
         return root
+    }
+
+    private static func migrateLegacyDocumentsPatches(
+        to root: URL,
+        fileManager: FileManager
+    ) {
+        guard let documents = try? documentsRootURL(fileManager: fileManager) else { return }
+        let legacyRoot = documents.appendingPathComponent("Patches", isDirectory: true)
+        guard fileManager.fileExists(atPath: legacyRoot.path),
+              let items = try? fileManager.contentsOfDirectory(
+                at: legacyRoot,
+                includingPropertiesForKeys: nil,
+                options: []
+              ) else { return }
+
+        for item in items {
+            let destination = root.appendingPathComponent(item.lastPathComponent)
+            guard !fileManager.fileExists(atPath: destination.path) else { continue }
+            try? fileManager.moveItem(at: item, to: destination)
+        }
+        if let remaining = try? fileManager.contentsOfDirectory(
+            at: legacyRoot,
+            includingPropertiesForKeys: nil,
+            options: []
+        ), remaining.isEmpty {
+            try? fileManager.removeItem(at: legacyRoot)
+        }
     }
 
     static func createWorkspace(
