@@ -8,7 +8,9 @@ class AppLog: ObservableObject {
     static let shared = AppLog()
     @Published var entries: [String] = []
     func append(_ msg: String) {
+#if DEBUG
         DispatchQueue.main.async { self.entries.append(msg) }
+#endif
     }
 }
 func log(_ msg: String) { AppLog.shared.append("[3105] \(msg)") }
@@ -19,6 +21,7 @@ private var logCapturePipe: Pipe?
 // Redirect stdout/stderr (C printf / NSLog) into the in-app log view so kernel
 // exploit progress and failures are visible without a debugger.
 func setupLogCapture() {
+#if DEBUG
     guard logCapturePipe == nil else { return }  // already set up
     let pipe = Pipe()
     logCapturePipe = pipe  // retain!
@@ -44,6 +47,8 @@ func setupLogCapture() {
             }
         }
     }
+
+#endif
 }
 
 // MARK: - App Info

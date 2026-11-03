@@ -210,7 +210,7 @@ final class LicenseSession: ObservableObject {
     private func write(_ value: String, account: String) {
         let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: keychainService, kSecAttrAccount as String: account]
         let data = Data(value.utf8)
-        let attributes: [String: Any] = [kSecValueData as String: data, kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly]
+        let attributes: [String: Any] = [kSecValueData as String: data, kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly]
         if SecItemUpdate(query as CFDictionary, attributes as CFDictionary) != errSecSuccess {
             var item = query
             attributes.forEach { item[$0.key] = $0.value }
