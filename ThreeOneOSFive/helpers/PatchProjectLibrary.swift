@@ -45,7 +45,7 @@ enum PatchProjectLibrary {
             appropriateFor: nil,
             create: true
         )
-        let root = base.appendingPathComponent("ExternalPatches", isDirectory: true)
+        var root = base.appendingPathComponent("ExternalPatches", isDirectory: true)
         try fileManager.createDirectory(at: root, withIntermediateDirectories: true)
         try? fileManager.setAttributes(
             [.protectionKey: FileProtectionType.complete],
