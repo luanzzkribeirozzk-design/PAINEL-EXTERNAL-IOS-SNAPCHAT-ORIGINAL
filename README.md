@@ -10,7 +10,7 @@
 
 <p align="center">
   <img alt="Version" src="https://img.shields.io/badge/version-2.0-E6753A?style=flat-square">
-  <img alt="iOS" src="https://img.shields.io/badge/iOS-17.0–18.7.1%20%7C%2026.0–26.6.1%20%7C%2027%20beta%201–4-222222?style=flat-square">
+  <img alt="iOS" src="https://img.shields.io/badge/iOS-17.0–18.7.10%20%7C%2026.0–26.7.2%20%7C%2027.0%20betas%20%2B%2027.2%20experimental-222222?style=flat-square">
   <img alt="Swift" src="https://img.shields.io/badge/Swift-5-F05138?style=flat-square&logo=swift&logoColor=white">
   <img alt="Languages" src="https://img.shields.io/badge/languages-English%20%7C%20Tiếng%20Việt%20%7C%20简体中文-E6753A?style=flat-square">
 </p>
@@ -68,14 +68,14 @@ Compared with 1.1.1, version 2.0 turns 3105 from a collection of separate tools 
 | System | Verified range/builds |
 | --- | --- |
 | iOS 17 | 17.0 through 17.7 (kernel exploit) |
-| iOS 18 | 18.0 through 18.7.1 (kernel exploit) |
-| iOS 26 | 26.0 through 26.6.1 |
+| iOS 18 | 18.0 through 18.7.10 (target; not verified on every build) |
+| iOS 26 | 26.0 through 26.7.2 (target; later releases require device testing) |
 | iOS 27 Developer Beta 1 | `24A5355q` |
 | iOS 27 Developer Beta 2 | `24A5370h` |
 | iOS 27 Developer Beta 3 / Public Beta 1 | `24A5380h` |
 | iOS 27 Developer Beta 4 / Public Beta 2 | `24A5390f` |
 
-Unlisted iOS 27 builds are marked unsupported rather than assumed compatible. The iOS 17–18 kernel exploit is opt-in (manual button) because a failed exploit attempt may restart the app.
+The listed iOS 27.0 beta builds remain accepted; iOS 27.2 is an experimental target and is not verified by this version gate alone. The iOS 17–18 kernel exploit is opt-in (manual button) because a failed exploit attempt may restart the app.
 
 ## Installation notes
 
