@@ -545,6 +545,13 @@ struct PatchUnlockView: View {
     @ObservedObject var store: PatchProjectStore
     let request: PatchPasswordRequest
     @State private var password = ""
+    @State private var candidatePasswords = ["", "", ""]
+    @State private var showCandidateSettings = false
+    @State private var didTrySavedCandidates = false
+
+    private var nonEmptyCandidates: [String] {
+        Array(candidatePasswords.filter { !$0.isEmpty }.prefix(3))
+    }
 
     var body: some View {
         NavigationStack {
@@ -571,6 +578,33 @@ struct PatchUnlockView: View {
                         Text(language.text("patch.password_once_message"))
                     }
                 }
+
+                Section {
+                    DisclosureGroup(
+                        language.text("patch.auto_password_title"),
+                        isExpanded: $showCandidateSettings
+                    ) {
+                        ForEach(candidatePasswords.indices, id: \.self) { index in
+                            SecureField(
+                                "\(language.text("patch.auto_password_candidate")) \(index + 1)",
+                                text: $candidatePasswords[index]
+                            )
+                        }
+                        Button(language.text("patch.auto_password_save_and_try")) {
+                            saveCandidatesAndTry()
+                        }
+                        .disabled(nonEmptyCandidates.isEmpty || store.isBusy)
+
+                        Button(role: .destructive) {
+                            forgetCandidates()
+                        } label: {
+                            Text(language.text("patch.auto_password_forget"))
+                        }
+                        .disabled(store.isBusy)
+                    }
+                } footer: {
+                    Text(language.text("patch.auto_password_footer"))
+                }
             }
             .navigationTitle(language.text("patch.unlock"))
             .navigationBarTitleDisplayMode(.inline)
@@ -583,6 +617,44 @@ struct PatchUnlockView: View {
                         .disabled(password.isEmpty || store.isBusy)
                 }
             }
+            .onAppear(perform: trySavedCandidatesIfAvailable)
+        }
+    }
+
+    private func trySavedCandidatesIfAvailable() {
+        guard !didTrySavedCandidates else { return }
+        didTrySavedCandidates = true
+        do {
+            let saved = try PatchKeyStore.loadPasswordCandidates()
+            guard !saved.isEmpty else { return }
+            candidatePasswords = (0..<3).map { index in
+                index < saved.count ? saved[index] : ""
+            }
+            store.unlock(passwordCandidates: saved)
+        } catch {
+            store.unlockErrorKey = "patch.error.keychain"
+        }
+    }
+
+    private func saveCandidatesAndTry() {
+        let candidates = nonEmptyCandidates
+        guard !candidates.isEmpty else { return }
+        do {
+            try PatchKeyStore.storePasswordCandidates(candidates)
+            store.clearUnlockError()
+            store.unlock(passwordCandidates: candidates)
+        } catch {
+            store.unlockErrorKey = "patch.error.keychain"
+        }
+    }
+
+    private func forgetCandidates() {
+        do {
+            try PatchKeyStore.deletePasswordCandidates()
+            candidatePasswords = ["", "", ""]
+            store.clearUnlockError()
+        } catch {
+            store.unlockErrorKey = "patch.error.keychain"
         }
     }
 

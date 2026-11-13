@@ -185,7 +185,12 @@
 "patch.no_password" = "No password";
 "patch.password_immutable_footer" = "Optional. It cannot be changed after the project is created.";
 "patch.password_existing_footer" = "This setting cannot be changed after creation.";
-"patch.password_once_message" = "After a successful unlock, this device remembers the content key—not the password.";
+"patch.password_once_message" = "A manual unlock stores only the content key. Saved auto-retry candidates are optional and remain in this device's Keychain.";
+"patch.auto_password_title" = "Automatically try saved candidates";
+"patch.auto_password_footer" = "Up to three candidates are stored only in this device's Keychain, never in the public source repository. They are tried when you open a locked patch.";
+"patch.auto_password_candidate" = "Password candidate";
+"patch.auto_password_save_and_try" = "Save and try candidates";
+"patch.auto_password_forget" = "Forget saved candidates";
 "patch.password_repo_contact" = "This repository does not share the password. Contact the owner of %@ to get it. After unlocking, this device remembers only the content key—not the password.";
 "patch.unlock" = "Unlock";
 "patch.apply" = "Apply Patch";

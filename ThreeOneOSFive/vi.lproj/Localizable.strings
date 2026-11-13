@@ -185,7 +185,12 @@
 "patch.no_password" = "Không có mật khẩu";
 "patch.password_immutable_footer" = "Không bắt buộc. Sau khi tạo dự án, mật khẩu không thể thay đổi.";
 "patch.password_existing_footer" = "Thiết lập này không thể thay đổi sau khi tạo.";
-"patch.password_once_message" = "Sau khi mở khóa thành công, thiết bị này chỉ nhớ khóa nội dung, không lưu mật khẩu.";
+"patch.password_once_message" = "Mở khóa thủ công chỉ lưu khóa nội dung. Mật khẩu dùng để tự động thử là tùy chọn và chỉ nằm trong Keychain của thiết bị này.";
+"patch.auto_password_title" = "Tự động thử mật khẩu đã lưu";
+"patch.auto_password_footer" = "Tối đa ba mật khẩu được lưu chỉ trong Keychain của thiết bị này, không lưu trong kho mã nguồn công khai. Chúng sẽ được thử khi bạn mở patch bị khóa.";
+"patch.auto_password_candidate" = "Mật khẩu thử";
+"patch.auto_password_save_and_try" = "Lưu và thử các mật khẩu";
+"patch.auto_password_forget" = "Xóa mật khẩu đã lưu";
 "patch.password_repo_contact" = "Repo này không chia sẻ mật khẩu. Hãy liên hệ chủ repo %@ để lấy mật khẩu. Sau khi mở khóa, thiết bị chỉ nhớ khóa nội dung, không lưu mật khẩu.";
 "patch.unlock" = "Mở khóa";
 "patch.apply" = "Áp dụng patch";

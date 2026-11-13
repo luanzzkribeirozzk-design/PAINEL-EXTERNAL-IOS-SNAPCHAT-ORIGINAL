@@ -245,32 +245,46 @@ final class PatchProjectStore: ObservableObject {
     }
 
     func unlock(password: String) {
+        unlock(passwordCandidates: [password])
+    }
+
+    func unlock(passwordCandidates: [String]) {
         guard let pending = pendingUnlock, !isBusy else { return }
+        let candidates = Array(passwordCandidates.filter { !$0.isEmpty }.prefix(3))
+        guard !candidates.isEmpty else { return }
         isBusy = true
         unlockErrorKey = nil
         Task.detached(priority: .userInitiated) { [weak self] in
-            do {
-                let decoded = try PatchPackageCodec.decode(pending.data, password: password)
-                try PatchKeyStore.store(decoded.contentKey, for: pending.summary)
+            for password in candidates {
                 do {
-                    try PatchProjectLibrary.installImportedPackage(
-                        data: pending.data,
-                        decoded: decoded,
-                        summary: pending.summary,
-                        existingURL: pending.existingURL,
-                        origin: pending.origin
-                    )
+                    let decoded = try PatchPackageCodec.decode(pending.data, password: password)
+                    try PatchKeyStore.store(decoded.contentKey, for: pending.summary)
+                    do {
+                        try PatchProjectLibrary.installImportedPackage(
+                            data: pending.data,
+                            decoded: decoded,
+                            summary: pending.summary,
+                            existingURL: pending.existingURL,
+                            origin: pending.origin
+                        )
+                    } catch {
+                        try? PatchKeyStore.delete(for: pending.summary)
+                        throw error
+                    }
+                    await self?.clearPendingUnlock()
+                    await self?.finishOperation(successMessageKey: "patch.unlocked_message")
+                    return
+                } catch let error as PatchPackageError {
+                    guard error == .invalidPasswordOrCorruptedPackage else {
+                        await self?.failUnlock(error)
+                        return
+                    }
                 } catch {
-                    try? PatchKeyStore.delete(for: pending.summary)
-                    throw error
+                    await self?.failUnlock(.invalidPasswordOrCorruptedPackage)
+                    return
                 }
-                await self?.clearPendingUnlock()
-                await self?.finishOperation(successMessageKey: "patch.unlocked_message")
-            } catch let error as PatchPackageError {
-                await self?.failUnlock(error)
-            } catch {
-                await self?.failUnlock(.invalidPasswordOrCorruptedPackage)
             }
+            await self?.failUnlock(.invalidPasswordOrCorruptedPackage)
         }
     }
 

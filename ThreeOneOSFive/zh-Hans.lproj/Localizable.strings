@@ -185,7 +185,12 @@
 "patch.no_password" = "无密码";
 "patch.password_immutable_footer" = "可选。项目创建后无法更改密码。";
 "patch.password_existing_footer" = "创建后无法更改此设置。";
-"patch.password_once_message" = "成功解锁后，此设备只会记住内容密钥，不会保存密码。";
+"patch.password_once_message" = "手动解锁只保存内容密钥。自动重试候选密码为可选项，并且只保存在此设备的 Keychain 中。";
+"patch.auto_password_title" = "自动尝试已保存的密码";
+"patch.auto_password_footer" = "最多三个候选密码仅保存在此设备的 Keychain 中，不会写入公开代码仓库。打开锁定的补丁时会依次尝试。";
+"patch.auto_password_candidate" = "候选密码";
+"patch.auto_password_save_and_try" = "保存并尝试密码";
+"patch.auto_password_forget" = "忘记已保存的密码";
 "patch.password_repo_contact" = "此软件源未共享密码。请联系 %@ 的所有者获取密码。解锁后，此设备只会记住内容密钥，不会保存密码。";
 "patch.unlock" = "解锁";
 "patch.apply" = "应用补丁";
