@@ -10,7 +10,7 @@
 
 <p align="center">
   <img alt="Phiên bản" src="https://img.shields.io/badge/phiên%20bản-2.0-E6753A?style=flat-square">
-  <img alt="iOS" src="https://img.shields.io/badge/iOS-17.0–18.7.10%20%7C%2026.0–26.7.2%20%7C%2027.0%20betas%20%2B%2027.2%20experimental-222222?style=flat-square">
+  <img alt="iOS" src="https://img.shields.io/badge/iOS-17.0–18.7.1%20%7C%2026.0–26.6.1%20%7C%2027%20beta%201–4-222222?style=flat-square">
   <img alt="Ngôn ngữ" src="https://img.shields.io/badge/ngôn%20ngữ-English%20%7C%20Tiếng%20Việt%20%7C%20简体中文-E6753A?style=flat-square">
 </p>
 
@@ -61,14 +61,14 @@ So với 1.1.1, bản 2.0 chuyển 3105 từ một bộ công cụ riêng lẻ t
 | Hệ thống | Phiên bản/build |
 | --- | --- |
 | iOS 17 | 17.0 đến 17.7.x |
-| iOS 18 | 18.0 đến 18.7.10 (mục tiêu; chưa xác minh mọi build) |
-| iOS 26 | 26.0 đến 26.7.2 (mục tiêu; cần kiểm thử trên thiết bị) |
+| iOS 18 | 18.0 đến 18.7.1 |
+| iOS 26 | 26.0 đến 26.6.1 |
 | iOS 27 Developer Beta 1 | `24A5355q` |
 | iOS 27 Developer Beta 2 | `24A5370h` |
 | iOS 27 Developer Beta 3 / Public Beta 1 | `24A5380h` |
 | iOS 27 Developer Beta 4 / Public Beta 2 | `24A5390f` |
 
-Các build beta iOS 27.0 đã liệt kê vẫn được chấp nhận; iOS 27.2 là mục tiêu thử nghiệm, chưa được xác minh chỉ bằng kiểm tra phiên bản.
+Những build không có trong bảng sẽ được đánh dấu là không hỗ trợ.
 
 ## Lưu ý cài đặt
 

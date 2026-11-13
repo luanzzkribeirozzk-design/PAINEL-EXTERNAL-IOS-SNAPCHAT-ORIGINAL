@@ -2,8 +2,8 @@ import Foundation
 
 enum ExploitSupportPolicy {
     static let verifiedIOS17Range = "17.0–17.7.x"
-    static let verifiedIOS18Range = "18.0–18.7.10"
-    static let verifiedIOS26Range = "26.0–26.7.2"
+    static let verifiedIOS18Range = "18.0–18.7.1"
+    static let verifiedIOS26Range = "26.0–26.6.1"
 
     static let verifiedIOS27Builds: [(beta: Int, publicBeta: Int?, build: String)] = [
         (1, nil, "24A5355q"),
@@ -28,7 +28,7 @@ enum ExploitSupportPolicy {
         }
 
         if major == 18 {
-            return minor < 7 || (minor == 7 && patch <= 10)
+            return minor < 7 || (minor == 7 && patch <= 1)
         }
 
         return false
@@ -41,14 +41,7 @@ enum ExploitSupportPolicy {
 
         if major == 26 {
             guard minor >= 0, patch >= 0 else { return false }
-            return minor < 7 || (minor == 7 && patch <= 2)
-        }
-
-        // The known 27.0 beta builds remain accepted. 27.2 is admitted as a
-        // compatibility target, but this version gate alone does not confirm
-        // that exploit offsets or device-level functions work on that release.
-        if major == 27, minor == 2, patch == 0 {
-            return true
+            return minor < 6 || (minor == 6 && patch <= 1)
         }
 
         guard major == 27, minor == 0, patch == 0 else { return false }
